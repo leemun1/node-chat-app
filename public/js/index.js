@@ -13,6 +13,11 @@ socket.on('newUser', function () {
   sound.play();
 });
 
+socket.on('messageIncoming', function () {
+  let sound = new Audio('/assets/newmessage.mp3');
+  sound.play();
+});
+
 socket.on('newMessage', function (message) {
   console.log('New Message:', message);
   let li = $('<li></li>');
@@ -42,8 +47,6 @@ $('#message-form').on('submit', function (e) {
     text: messageBox.val()
   }, function () {
     messageBox.val('');
-    let sound = new Audio('/assets/newmessage.mp3');
-    sound.play();
   });
 });
 
