@@ -33,6 +33,15 @@ socket.on('disconnect', function () {
   console.log('Disconnected from server');
 });
 
+socket.on('updateUserList', function (users) {
+  let ol = $('<ol></ol>');
+  users.forEach((user) => {
+    ol.append($('<li></li>').text(user));
+  });
+
+  $('#users').html(ol);
+});
+
 socket.on('newUser', function () {
   let sound = new Audio('/assets/join.mp3');
   sound.play();
