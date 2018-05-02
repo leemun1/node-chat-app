@@ -8,6 +8,11 @@ socket.on('disconnect', function () {
   console.log('Disconnected from server');
 });
 
+socket.on('newUser', function () {
+  let sound = new Audio('/assets/join.mp3');
+  sound.play();
+});
+
 socket.on('newMessage', function (message) {
   console.log('New Message:', message);
   let li = $('<li></li>');
@@ -25,7 +30,7 @@ socket.on('newLocationMessage', function (message) {
 
   li.append(a);
   $('#messages').append(li);
-})
+});
 
 $('#message-form').on('submit', function (e) {
   e.preventDefault();
@@ -37,6 +42,8 @@ $('#message-form').on('submit', function (e) {
     text: messageBox.val()
   }, function () {
     messageBox.val('');
+    let sound = new Audio('/assets/newmessage.mp3');
+    sound.play();
   });
 });
 
