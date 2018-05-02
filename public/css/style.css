@@ -35,6 +35,10 @@ button:disabled {
   background: #698ea5;
 }
 
+#send-location {
+    margin-right: 10px;
+  }
+
 .centered-form {
   display: flex;
   align-items: center;
@@ -172,6 +176,10 @@ button:disabled {
 @media (max-width: 600px) {
   * {
     font-size: 1rem;
+  }
+    
+  #send-location {
+    margin-bottom: 10px;
   }
 
   .chat__sidebar {

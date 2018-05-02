@@ -85,7 +85,6 @@ $('#message-form').on('submit', function (e) {
   let messageBox = $('[name=message]');
 
   socket.emit('createMessage', {
-    from: 'User',
     text: messageBox.val()
   }, function () {
     messageBox.val('');
@@ -111,4 +110,19 @@ locationButton.on('click', function (e) {
     locationButton.removeAttr('disabled').text('Send location');
     alert('Unable to fetch location.');
   });
+});
+
+const soundButton = $('#toggle-sound');
+
+soundButton.on('click', function (e) {
+  if (soundButton.text() === 'Sound On') {
+    soundButton.text('Sound Off');
+    socket.off('messageIncoming');
+  } else {
+    soundButton.text('Sound On');
+    socket.on('messageIncoming', function () {
+      let sound = new Audio('/assets/newmessage.mp3');
+      sound.play();
+    });
+  }
 });
