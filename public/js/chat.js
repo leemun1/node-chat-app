@@ -18,7 +18,7 @@ function scrollToBottom () {
 
 socket.on('connect', function () {
   let params = $.deparam(window.location.search);
-
+  params.room = params.room.toLowerCase();
   socket.emit('join', params, function (error) {
     if (error) {
       alert(error);
