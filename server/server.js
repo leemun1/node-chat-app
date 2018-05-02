@@ -2,6 +2,7 @@ const path = require('path');
 const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
+const _ = require('lodash');
 
 const {generateMessage, generateLocationMessage} = require('./utils/message');
 const {isRealString} = require('./utils/validation');
@@ -19,16 +20,18 @@ app.use(express.static(publicPath));
 io.on('connection', (socket) => {
   console.log('New user connected');
 
-
   socket.on('join', (params, callback) => {
     if (!isRealString(params.name) || !isRealString(params.room)) {
       return callback('Name and room name are required.');
     }
-
+    
+    if (_.findIndex(users.users, ['name', params.name]) !== -1) {
+      return callback('Name already exists!');
+    }
+    
     socket.join(params.room);
     users.removeUser(socket.id);
     users.addUser(socket.id, params.name, params.room);
-
 
     io.to(params.room).emit('updateUserList', users.getUserList(params.room));
     socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app.'));
@@ -38,24 +41,28 @@ io.on('connection', (socket) => {
     callback();
   });
 
-
   socket.on('createMessage', (message, callback) => {
-    console.log('New message created:', message);
-    io.emit('newMessage', generateMessage(message.from, message.text));
+    let user = users.getUser(socket.id);
+    if (user && isRealString(message.text)) {
+      io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+    }
     socket.broadcast.emit('messageIncoming');
     callback();
   });
 
   socket.on('createLocationMessage', (coords) => {
-    io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
+    let user = users.getUser(socket.id);
+    if (user) {
+      io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
+    }
+    socket.broadcast.emit('messageIncoming');
   });
 
   socket.on('disconnect', () => {
     let user = users.removeUser(socket.id);
-
     if (user) {
-      io.to(params.room).emit('updateUserList', users.getUserList(user.room));
-      io.to(params.room).emit('newMessage', generateMessage('Admin', `${user.name} has left.`));      
+      io.to(user.room).emit('updateUserList', users.getUserList(user.room));
+      io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left.`));      
     }
   });
 });
